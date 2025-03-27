@@ -1,0 +1,27 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"display": "Node 20",
+	"_version": "20.1.0",
+
+	"compilerOptions": {
+		"lib": ["es2023"],
+		"module": "ESNext",
+		"target": "es2022",
+
+		"strict": true,
+		"esModuleInterop": true,
+		"declaration": true,
+		"declarationMap": true,
+		"skipLibCheck": false,
+		"moduleResolution": "bundler",
+		"baseUrl": ".",
+		"outDir": "./dist",
+		"rootDir": ".",
+		"paths": {
+			"@/*": ["src/*"]
+		},
+		"types": ["vitest/globals"]
+	},
+	"include": ["src/**/*", "test/**/*", "vite.config.ts"],
+	"exclude": ["node_modules", "./src/**/__internal__/**/*", "*.config.ts"]
+}
