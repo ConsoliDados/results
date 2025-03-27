@@ -12,8 +12,7 @@
 		"release": true
 	},
 	"npm": {
-		"publish": true,
-		"publishPath": "./dist"
+		"publish": true
 	},
 	"publishConfig": {
 		"access": "public"
