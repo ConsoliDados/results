@@ -1,61 +1,63 @@
 {
-	"name": "@consolidados/results",
-	"version": "0.0.1",
-	"description": "Result types, ease and simple",
-	"main": "./dist/index.js",
-	"module": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"type": "module",
-	"homepage": "https://github.com/consolidados/results",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/consolidados/results"
-	},
-	"exports": {
-		"./option": {
-			"types": "./dist/option/index.d.ts",
-			"require": "./dist/option/index.cjs",
-			"default": "./dist/option/index.js"
-		},
-		"./result": {
-			"types": "./dist/result/index.d.ts",
-			"require": "./dist/result/index.cjs",
-			"default": "./dist/result/index.js"
-		},
-		"./helpers": {
-			"types": "./dist/helpers/match.d.ts",
-			"require": "./dist/helpers/match.cjs",
-			"default": "./dist/helpers/match.js"
-		},
-		"./globals": {
-			"types": "./dist/types/globals.d.ts"
-		},
-		".": {
-			"types": "./dist/index.d.ts",
-			"require": "./dist/index.cjs",
-			"default": "./dist/index.js"
-		}
-	},
-	"scripts": {
-		"build": "rm -rf dist && tsup",
-		"test": "vitest run"
-	},
-	"keywords": [
-		"Rust",
-		"Result",
-		"Option",
-		"Some",
-		"None",
-		"Ok",
-		"Err",
-		"Match"
-	],
-	"author": "Johnny Carreiro",
-	"license": "ISC",
-	"devDependencies": {
-		"@types/node": "^22.13.13",
-		"tsup": "^8.4.0",
-		"typescript": "^5.8.2",
-		"vitest": "^3.0.9"
-	}
+  "name": "@consolidados/results",
+  "version": "0.0.1",
+  "description": "Result types, ease and simple",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "homepage": "https://github.com/consolidados/results",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/consolidados/results"
+  },
+  "exports": {
+    "./option": {
+      "types": "./dist/option/index.d.ts",
+      "require": "./dist/option/index.cjs",
+      "default": "./dist/option/index.js"
+    },
+    "./result": {
+      "types": "./dist/result/index.d.ts",
+      "require": "./dist/result/index.cjs",
+      "default": "./dist/result/index.js"
+    },
+    "./helpers": {
+      "types": "./dist/helpers/match.d.ts",
+      "require": "./dist/helpers/match.cjs",
+      "default": "./dist/helpers/match.js"
+    },
+    "./globals": {
+      "types": "./dist/types/globals.d.ts"
+    },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsup",
+    "test": "vitest run",
+    "release": "release-it"
+  },
+  "keywords": [
+    "Rust",
+    "Result",
+    "Option",
+    "Some",
+    "None",
+    "Ok",
+    "Err",
+    "Match"
+  ],
+  "author": "Johnny Carreiro",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.13.13",
+    "release-it": "^18.1.2",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
+  }
 }
