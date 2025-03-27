@@ -6,12 +6,16 @@
 	},
 	"hooks": {
 		"before:init": ["git pull", "pnpm run test"],
-		"afeter:bump": "npx auto-changelog -p"
+		"afeter:bump": ["pnpm run build", "npx auto-changelog -p"]
 	},
 	"github": {
 		"release": true
 	},
 	"npm": {
-		"publish": true
+		"publish": true,
+		"publishPath": "./dist"
+	},
+	"publishConfig": {
+		"access": "public"
 	}
 }
