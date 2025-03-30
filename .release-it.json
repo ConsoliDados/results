@@ -4,6 +4,11 @@
 		"requireBranch": "main",
 		"commitMessage": "chore: release v${version}"
 	},
+	"plugins": {
+		"@release-it/conventional-changelog": {
+			"preset": "angular"
+		}
+	},
 	"hooks": {
 		"before:init": ["git pull", "pnpm run test"],
 		"afeter:bump": ["pnpm run build", "npx auto-changelog -p"]

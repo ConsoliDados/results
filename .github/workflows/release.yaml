@@ -1,0 +1,52 @@
+---
+name: Release & Publish to NPM
+# on: workflow_dispatch
+on:
+  push:
+    branches: [main, rc]
+    paths-ignore: [CHANGELOG.md]
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+jobs:
+  release:
+    runs-on: ubuntu-20.04
+    if: >
+      github.actor != 'Release Bot' &&  !contains(github.event.head_commit.message,
+      'chore: release')
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install Dependencies
+        run: npm ci
+      - name: Initialize Git user
+        run: |
+          git config --global user.email "contact@consolidados.digital" 
+          gti config --global user.name "Release Bot"
+      - name: Initialize NPM config
+        run: npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+        env:
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+      - name: Determine Release Type
+        run: |
+          if [[ $GITHUB_REF == refs/heads/main ]]; then
+            echo "RELEASE_ARGS=--ci" >> $GITHUB_ENV
+          elif [[ $GITHUB_REF == refs/heads/rc ]]; then
+            echo "RELEASE_ARGS=--ci --preRelease=rc" >> $GITHUB_ENV
+          else
+            echo "Branch não autorizada para release."
+            exit 1
+          fi
+      - name: Create Release
+        run: npm run release $RELEASE_ARGS
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: End Message
+        run: echo "All done!🥳 "
