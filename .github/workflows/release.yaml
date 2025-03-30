@@ -37,7 +37,7 @@ jobs:
       - name: Initialize Git user
         run: |
           git config --global user.email "contact@consolidados.digital" 
-          gti config --global user.name "Release Bot"
+          git config --global user.name "Release Bot"
 
       - name: Initialize NPM config
         run: npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
