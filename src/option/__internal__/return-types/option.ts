@@ -1,5 +1,5 @@
-import { None } from "./none";
-import { Some } from "./some";
+import type { None } from "./none";
+import type { Some } from "./some";
 
 /**
  * Represents an optional value that can either be `Some` (with a value) or `None` (no value).

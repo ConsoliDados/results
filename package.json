@@ -39,7 +39,9 @@
 	"scripts": {
 		"build": "rm -rf dist && tsup",
 		"test": "vitest run",
-		"release": "release-it"
+		"release": "release-it",
+		"format-and-lint": "biome check .",
+		"format-and-lint:fix": "biome check . --write"
 	},
 	"keywords": [
 		"Rust",
@@ -54,7 +56,9 @@
 	"author": "Johnny Carreiro",
 	"license": "ISC",
 	"devDependencies": {
+		"@release-it/conventional-changelog": "^10.0.0",
 		"@types/node": "^22.13.13",
+		"biome": "^0.3.3",
 		"release-it": "^18.1.2",
 		"tsup": "^8.4.0",
 		"typescript": "^5.8.2",
