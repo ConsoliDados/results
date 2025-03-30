@@ -1,6 +1,6 @@
 {
 	"name": "@consolidados/results",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Result types, ease and simple",
 	"main": "./dist/index.js",
 	"module": "./dist/index.js",
