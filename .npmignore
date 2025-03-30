@@ -24,3 +24,5 @@ build
 
 tsconfig.json
 tsup.config.ts
+
+biome.jsonc
