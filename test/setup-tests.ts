@@ -1,1 +1,1 @@
-import "@consolidados/results";
+import "../src";
