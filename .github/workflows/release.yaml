@@ -19,20 +19,31 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: latest
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
+
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
+
       - name: Initialize Git user
         run: |
           git config --global user.email "contact@consolidados.digital" 
           gti config --global user.name "Release Bot"
+
       - name: Initialize NPM config
         run: npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
         env:
           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+
       - name: Determine Release Type
         run: |
           if [[ $GITHUB_REF == refs/heads/main ]]; then
@@ -43,10 +54,12 @@ jobs:
             echo "Branch não autorizada para release."
             exit 1
           fi
+
       - name: Create Release
         run: npm run release $RELEASE_ARGS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: End Message
         run: echo "All done!🥳 "
