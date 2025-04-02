@@ -11,7 +11,7 @@
 	},
 	"hooks": {
 		"before:init": ["git pull", "pnpm run test"],
-		"afeter:bump": ["pnpm run build", "npx auto-changelog -p"]
+		"after:bump": ["pnpm run build", "npx auto-changelog -p"]
 	},
 	"github": {
 		"release": true

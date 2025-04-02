@@ -12,7 +12,7 @@
 		"url": "https://github.com/consolidados/results"
 	},
   "files": [
-    "dist"
+    "dist/"
    ],
 	"exports": {
 		"./option": {
