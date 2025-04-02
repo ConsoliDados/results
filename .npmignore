@@ -1,6 +1,5 @@
 /src
 /test
-/node_modules
 
 coverage
 
@@ -24,5 +23,7 @@ build
 
 tsconfig.json
 tsup.config.ts
+vitest.config.ts
+vite.config.ts
 
 biome.jsonc
