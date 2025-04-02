@@ -11,6 +11,9 @@
 		"type": "git",
 		"url": "https://github.com/consolidados/results"
 	},
+  "files": [
+    "dist"
+   ],
 	"exports": {
 		"./option": {
 			"types": "./dist/option/index.d.ts",
