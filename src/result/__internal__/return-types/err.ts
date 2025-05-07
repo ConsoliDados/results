@@ -1,5 +1,5 @@
-import type { ResultDefinition } from "./result";
 import type { Ok } from "./ok";
+import type { ResultDefinition } from "./result";
 
 /**
  * Represents a failed result (`Err`) that contains an error value.

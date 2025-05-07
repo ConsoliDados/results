@@ -90,4 +90,6 @@ declare global {
   function None(): NoneType;
 }
 
+// export { Some, None, Ok, Err, match, type Result, type Option };
+// biome-ignore lint/complexity/noUselessEmptyExport: <explanation>
 export {};
