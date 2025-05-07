@@ -309,12 +309,13 @@ The `Result` type currently implements the following methods:
 - [x] `map(fn)`: Maps a successful value using a function.
 - [x] `flatMap(fn)`: Applies a function that returns a `Result`.
 - [x] `mapErr(fn)`: Maps an error value using a function.
+- [x] `ok()`: Converts `Result<T, E>` into `Option<T>`.
+
 
 #### Methods to be Developed
 
 The following methods are planned for future development:
 
-- [ ] `expect(message)`: Extracts the successful value or throws an error with a custom message.
 - [ ] `ok()`: Converts `Result<T, E>` into `Option<T>`.
 - [ ] `err()`: Converts `Result<T, E>` into `Option<E>`.
 - [ ] `and(res)`: Returns `Err` if `self` is `Err`, otherwise returns `res`.

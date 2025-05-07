@@ -10,7 +10,7 @@ export class Ok<T> implements ResultDefinition<T, never> {
    * Creates a new `Ok` instance with the given value.
    * @param value The value to wrap in the `Ok` instance.
    */
-  constructor(private value: T) { }
+  constructor(private value: T) {}
   /**
    * Checks if this result is an `Ok`.
    * @returns `true` because this is an `Ok`.
@@ -75,5 +75,16 @@ export class Ok<T> implements ResultDefinition<T, never> {
    */
   unwrapErr(): never {
     throw new Error("Called unwrapErr on an Ok value");
+  }
+
+  /**
+   * Converts `Result` type to `Option` type.
+   * @returns `Some` if the result is `Ok`, `None` if the result is `Err`.
+   */
+  ok() {
+    return match(this, {
+      Ok: (v) => Some(v),
+      Err: (_) => None(),
+    });
   }
 }

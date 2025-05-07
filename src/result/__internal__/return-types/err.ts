@@ -7,7 +7,8 @@ import type { Ok } from "./ok";
  */
 export class Err<E extends Error>
   extends Error
-  implements ResultDefinition<never, E> {
+  implements ResultDefinition<never, E>
+{
   private error: E;
   /**
    * Creates a new `Err` instance with the given error value.
@@ -86,5 +87,13 @@ export class Err<E extends Error>
    */
   unwrapErr(): E {
     return this.error;
+  }
+
+  /**
+   * Converts `Result` type to `Option` type.
+   * @returns `Some` if the result is `Ok`, `None` if the result is `Err`.
+   */
+  ok() {
+    return None();
   }
 }

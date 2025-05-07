@@ -1,7 +1,7 @@
 import {
-	Err as ErrType,
-	Ok as OkType,
-	type Result,
+  Err as ErrType,
+  Ok as OkType,
+  type Result,
 } from "./__internal__/return-types";
 
 /**
@@ -15,7 +15,7 @@ import {
  * console.log(result.unwrap()); // 42
  */
 function Ok<T>(value: T): OkType<T> {
-	return new OkType(value);
+  return new OkType(value);
 }
 
 /**
@@ -29,10 +29,12 @@ function Ok<T>(value: T): OkType<T> {
  * console.log(result.unwrapErr()); // "Something went wrong"
  */
 function Err<E extends Error>(error: E | string): ErrType<E> {
-	return new ErrType(error);
+  return new ErrType(error);
 }
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 (global as any).Ok = Ok;
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 (global as any).Err = Err;
 
-export { Err, Ok, Result, ErrType, OkType };
+export type { Err, Ok, Result, ErrType, OkType };

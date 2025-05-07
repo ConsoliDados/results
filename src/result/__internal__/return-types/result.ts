@@ -1,5 +1,6 @@
 import type { Ok } from "./ok";
 import type { Err } from "./err";
+import type { Option } from "@/option";
 
 type OkType<T> = [T] extends [never] ? never : T;
 type ErrType<E> = [E] extends [never] ? never : E;
@@ -21,4 +22,5 @@ export interface ResultDefinition<T = never, E = never> {
   map<U>(fn: (value: T) => U): ResultDefinition<U, E>;
   flatMap<U>(fn: (value: T) => ResultDefinition<U, E>): ResultDefinition<U, E>;
   mapErr<U extends Error>(fn: (err: E) => U): ResultDefinition<T, U>;
+  ok(): Option<T>;
 }
