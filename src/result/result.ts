@@ -37,4 +37,4 @@ function Err<E extends Error>(error: E | string): ErrType<E> {
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 (global as any).Err = Err;
 
-export type { Err, Ok, Result, ErrType, OkType };
+export { Err, Ok, Result, ErrType, OkType };
