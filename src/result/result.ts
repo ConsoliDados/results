@@ -19,16 +19,9 @@ function Ok<T>(value: T): OkType<T> {
 }
 
 /**
- * Creates a new `Err` instance, representing a failed result.
- * @template E The type of the error contained in the `Err`.
- * @param error The error to wrap in the `Err` instance.
- * @returns An `Err` instance containing the given error.
- * @example
- * const result = Err("Something went wrong");
- * console.log(result.isErr()); // true
- * console.log(result.unwrapErr()); // "Something went wrong"
+ * Creates an Err - strings are converted to Error, everything else preserved
  */
-function Err<E extends Error>(error: E | string): ErrType<E> {
+function Err<E>(error: E): ErrType<E> {
   return new ErrType(error);
 }
 
