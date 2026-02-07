@@ -10,6 +10,7 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+  id-token: write
 jobs:
   release:
     runs-on: ubuntu-24.04
@@ -30,19 +31,15 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Initialize Git user
         run: |
-          git config --global user.email "contact@consolidados.digital" 
+          git config --global user.email "contact@consolidados.digital"
           git config --global user.name "Release Bot"
-
-      - name: Initialize NPM config
-        run: npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-        env:
-          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
 
       - name: Determine Release Type
         run: |
@@ -59,7 +56,7 @@ jobs:
         run: npm run release $RELEASE_ARGS
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: End Message
         run: echo "All done!🥳 "
