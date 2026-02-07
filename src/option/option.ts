@@ -18,16 +18,22 @@ function Some<T>(value: T): SomeType<T> {
 	return new SomeType(value);
 }
 
+let NONE_INSTANCE: NoneType | null = null;
+
 /**
- * Creates a new `None` instance, representing an `Option` with no value.
- * @returns A `None` instance.
+ * Returns the singleton `None` instance, representing an `Option` with no value.
+ * Uses a singleton pattern to reduce memory allocations.
+ * @returns The singleton `None` instance.
  * @example
  * const option = None();
  * console.log(option.isNone()); // true
  * console.log(option.unwrap()); // throws Error: "Called unwrap on a None value"
  */
 function None(): NoneType {
-	return new NoneType();
+	if (!NONE_INSTANCE) {
+		NONE_INSTANCE = new NoneType();
+	}
+	return NONE_INSTANCE;
 }
 
 (global as any).Some = Some;

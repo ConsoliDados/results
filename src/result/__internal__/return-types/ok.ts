@@ -8,9 +8,9 @@ import type { Err } from "./err";
 export class Ok<T> implements ResultDefinition<T, never> {
   /**
    * Creates a new `Ok` instance with the given value.
-   * @param value The value to wrap in the `Ok` instance.
+   * @param _value The value to wrap in the `Ok` instance.
    */
-  constructor(private value: T) {}
+  constructor(private _value: T) {}
   /**
    * Checks if this result is an `Ok`.
    * @returns `true` because this is an `Ok`.
@@ -32,7 +32,16 @@ export class Ok<T> implements ResultDefinition<T, never> {
    * @returns The value contained in this `Ok`.
    */
   unwrap(): T {
-    return this.value;
+    return this._value;
+  }
+
+  /**
+   * Returns the inner value. After an `isOk()` type guard, TypeScript narrows the return type to `T`.
+   * Without a type guard, returns `T | E` (use `isOk()` or `isErr()` for type narrowing).
+   * @returns The value contained in this `Ok`.
+   */
+  value(): T {
+    return this._value;
   }
 
   /**
@@ -42,30 +51,29 @@ export class Ok<T> implements ResultDefinition<T, never> {
    * @returns A new `Ok` containing the transformed value.
    */
   map<U>(fn: (value: T) => U): ResultDefinition<U, never> {
-    return new Ok(fn(this.value)) as ResultDefinition<U, never>;
+    return new Ok(fn(this._value)) as unknown as ResultDefinition<U, never>;
   }
 
   /**
    * Applies a transformation function that returns a `Result` to the value contained in this `Ok`.
    * @template U The type of the value in the resulting `Result`.
+   * @template E The type of the error in the resulting `Result`.
    * @param fn The transformation function to apply to the value.
    * @returns The result of applying the transformation function.
    */
-  flatMap<U>(
-    fn: (value: T) => ResultDefinition<U, never>,
-  ): ResultDefinition<U, never> {
-    return fn(this.value);
+  flatMap<U, E = never>(
+    fn: (value: T) => ResultDefinition<U, E>,
+  ): ResultDefinition<U, E> {
+    return fn(this._value);
   }
 
   /**
    * Maps the error value (if any). Since this is an `Ok`, the error mapping function is ignored, and the original `Ok` is returned.
-   * @template U The type of the error (ignored for `Ok`).
+   * @template U The type of the error (ignored for `Ok`). Can be any type.
    * @param _fn The mapping function for errors (not used).
    * @returns The original `Ok` instance.
    */
-  // mapErr<U extends Error | string>(fn: (err: U) => U): Result<T, never> {
-  // 	return this;
-  mapErr<U extends Error>(_fn: (err: never) => U): ResultDefinition<T, U> {
+  mapErr<U>(_fn: (err: never) => U): ResultDefinition<T, U> {
     return this as unknown as ResultDefinition<T, U>;
   }
 
@@ -78,13 +86,40 @@ export class Ok<T> implements ResultDefinition<T, never> {
   }
 
   /**
+   * Returns the contained value if `Ok`, otherwise returns the provided default value.
+   * @template U The type of the default value.
+   * @param defaultValue The value to return if this is an `Err`.
+   * @returns The value contained in this `Ok`.
+   */
+  unwrapOr<U>(defaultValue: U): T {
+    return this._value;
+  }
+
+  /**
+   * Returns the contained value if `Ok`, otherwise computes and returns the result of the provided function.
+   * @template U The type of the default value.
+   * @param fn The function to compute the default value.
+   * @returns The value contained in this `Ok`.
+   */
+  unwrapOrElse<U>(fn: (error: never) => U): T {
+    return this._value;
+  }
+
+  /**
+   * Returns this `Ok` if it is `Ok`, otherwise returns the result of the provided function.
+   * @template F The type of the alternative error.
+   * @param fn The function to compute the alternative result.
+   * @returns The original `Ok` instance.
+   */
+  orElse<F>(fn: (error: never) => ResultDefinition<T, F>): ResultDefinition<T, F> {
+    return this as unknown as ResultDefinition<T, F>;
+  }
+
+  /**
    * Converts `Result` type to `Option` type.
    * @returns `Some` if the result is `Ok`, `None` if the result is `Err`.
    */
   ok() {
-    return match(this, {
-      Ok: (v) => Some(v),
-      Err: (_) => None(),
-    });
+    return Some(this._value);
   }
 }

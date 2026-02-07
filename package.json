@@ -1,6 +1,6 @@
 {
   "name": "@consolidados/results",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Result types, ease and simple",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -65,7 +65,7 @@
     "biome": "^0.3.3",
     "release-it": "^18.1.2",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.2",
+    "typescript": "^5.9.3",
     "vitest": "^3.0.9"
   },
   "publishConfig": {

@@ -10,7 +10,8 @@ import type {
 } from "../result/__internal__/return-types";
 
 declare global {
-  function match<T, E extends Error, R>(
+  // Overload for Result type
+  export function match<T, E, R>(
     matcher: Result<T, E>,
     cases: {
       Ok: (value: T) => R;
@@ -18,8 +19,8 @@ declare global {
     },
   ): R;
 
-  // Overload para Option<T>
-  function match<T, R>(
+  // Overload for Option type
+  export function match<T, R>(
     matcher: Option<T>,
     cases: {
       Some: (value: T) => R;
@@ -27,7 +28,44 @@ declare global {
     },
   ): R;
 
-  function match<T, E extends Error>(
+  // Overload for primitives with default case
+  export function match<T extends PropertyKey, R>(
+    matcher: T,
+    cases: Partial<Record<T, () => R>> & { default: () => R },
+  ): R;
+
+  // Overload for primitives without default case (exhaustive)
+  export function match<T extends PropertyKey, R>(
+    matcher: T,
+    cases: Record<T, () => R>,
+  ): R;
+
+  // Overload for discriminated unions with default case
+  export function match<
+    T extends { [K in D]: string | number | symbol },
+    D extends keyof T,
+    R,
+  >(
+    matcher: T,
+    cases: { [K in T[D]]?: (value: Extract<T, { [P in D]: K }>) => R } & {
+      default: (value: T) => R;
+    },
+    discriminant: D,
+  ): R;
+
+  // Overload for discriminated unions without default case (exhaustive)
+  export function match<
+    T extends { [K in D]: string | number | symbol },
+    D extends keyof T,
+    R,
+  >(
+    matcher: T,
+    cases: { [K in T[D]]: (value: Extract<T, { [P in D]: K }>) => R },
+    discriminant: D,
+  ): R;
+
+  // Result -> Option conversion
+  export function match<T, E>(
     matcher: Result<T, E>,
     cases: {
       Ok: (value: T) => Option<T>;
@@ -35,7 +73,8 @@ declare global {
     },
   ): Option<T>;
 
-  function match<T, E extends Error = Error>(
+  // Option -> Result conversion
+  export function match<T, E>(
     matcher: Option<T>,
     cases: {
       Some: (value: T) => Result<T, E>;
@@ -65,7 +104,7 @@ declare global {
    * console.log(result.isErr()); // true
    * console.log(result.unwrapErr()); // "Something went wrong"
    */
-  function Err<E extends Error>(error: E | string): ErrType<E>;
+  function Err<E>(error: E): ErrType<E>;
 
   /**
    * creates a new `Some` instance, representing some value.
