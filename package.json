@@ -10,7 +10,7 @@
   "homepage": "https://github.com/consolidados/results",
   "repository": {
     "type": "git",
-    "url": "https://github.com/consolidados/results"
+    "url": "git+https://github.com/ConsoliDados/results.git"
   },
   "files": [
     "dist/"
