@@ -30,6 +30,9 @@ jobs:
       - name: Install latest npm
         run: npm install -g npm@latest
 
+      - name: Clear auth token for OIDC
+        run: echo "NODE_AUTH_TOKEN=" >> $GITHUB_ENV
+
       - name: Configure Git
         run: |
           git config --global user.email "contact@consolidados.digital"
@@ -42,8 +45,7 @@ jobs:
       - run: pnpm run build
 
       - name: Publish to npm
-        # run: npm publish --provenance --access public
-        run: npm publish
+        run: npm publish --provenance --access public
 
       - name: Create Git tag and GitHub Release
         env:
