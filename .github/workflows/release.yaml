@@ -1,81 +1,57 @@
 ---
-name: Release & Publish to NPM
-# on: workflow_dispatch
+name: Publish Package to npm
+
 on:
   push:
     branches: [main, rc]
-    paths-ignore: [CHANGELOG.md]
   workflow_dispatch:
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
-  id-token: write
-jobs:
-  release:
-    runs-on: ubuntu-24.04
-    if: >
-      github.actor != 'Release Bot' &&  !contains(github.event.head_commit.message,
-      'chore: release')
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2
+permissions:
+  id-token: write  # Required for OIDC trusted publishing
+  contents: write  # Required for creating tags and releases
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    if: github.actor != 'Release Bot'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
         with:
           version: latest
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Upgrade npm to latest
-        run: npm install -g npm@latest
-
-      - name: Initialize Git user
+      - name: Configure Git
         run: |
           git config --global user.email "contact@consolidados.digital"
           git config --global user.name "Release Bot"
 
-      - name: Determine Release Type
-        run: |
-          if [[ "${{ github.ref }}" != "refs/heads/main" && "${{ github.ref }}" != "refs/heads/rc" ]]; then
-            echo "Branch '${{ github.ref }}' não autorizada para release."
-            exit 1
-          fi
+      - run: pnpm install --frozen-lockfile
 
-      - name: Get current version
-        id: version
-        run: |
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
-          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          echo "Current version: $CURRENT_VERSION"
+      - run: pnpm run test
 
-      - name: Build package
-        run: pnpm run build
+      - run: pnpm run build
 
       - name: Publish to npm
         run: npm publish --provenance --access public
 
-      - name: Create Git tag
-        run: |
-          git tag "v${{ steps.version.outputs.current }}"
-          git push origin "v${{ steps.version.outputs.current }}"
-
-      - name: Create GitHub Release
+      - name: Create Git tag and GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v${{ steps.version.outputs.current }}" \
-            --title "v${{ steps.version.outputs.current }}" \
-            --notes "Release v${{ steps.version.outputs.current }}" \
+          VERSION=$(node -p "require('./package.json').version")
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            --notes "Release v$VERSION" \
             --verify-tag
 
-      - name: End Message
-        run: echo "Published v${{ steps.version.outputs.current }} successfully! 🥳"
+      - name: Success
+        run: echo "Published v$(node -p "require('./package.json').version") successfully! 🎉"
