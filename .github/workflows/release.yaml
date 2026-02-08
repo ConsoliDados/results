@@ -44,26 +44,41 @@ jobs:
           git config --global user.email "contact@consolidados.digital"
           git config --global user.name "Release Bot"
 
-      - name: Determine Release Type
+      - name: Verify branch
         run: |
-          echo "Debug: GITHUB_REF=$GITHUB_REF"
-          echo "Debug: github.ref=${{ github.ref }}"
-          echo "Debug: github.ref_name=${{ github.ref_name }}"
-
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "RELEASE_ARGS=--ci" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == "refs/heads/rc" ]]; then
-            echo "RELEASE_ARGS=--ci --preRelease=rc" >> $GITHUB_ENV
-          else
+          if [[ "${{ github.ref }}" != "refs/heads/main" && "${{ github.ref }}" != "refs/heads/rc" ]]; then
             echo "Branch '${{ github.ref }}' não autorizada para release."
             exit 1
           fi
 
-      - name: Create Release
-        run: npm run release $RELEASE_ARGS
+      - name: Get current version
+        id: version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "current=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+
+      - name: Build package
+        run: pnpm run build
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Create Git tag
+        run: |
+          git tag "v${{ steps.version.outputs.current }}"
+          git push origin "v${{ steps.version.outputs.current }}"
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ steps.version.outputs.current }}" \
+            --title "v${{ steps.version.outputs.current }}" \
+            --notes "Release v${{ steps.version.outputs.current }}" \
+            --verify-tag
+
       - name: End Message
-        run: echo "All done!🥳 "
+        run: echo "Published v${{ steps.version.outputs.current }} successfully! 🥳"
