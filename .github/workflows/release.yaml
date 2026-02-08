@@ -8,7 +8,7 @@ on:
 
 permissions:
   id-token: write # Required for OIDC trusted publishing
-  contents: read # Required for creating tags and releases
+  contents: write # Required for creating tags and releases
 
 jobs:
   publish:
