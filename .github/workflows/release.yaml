@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  id-token: write  # Required for OIDC trusted publishing
-  contents: write  # Required for creating tags and releases
+  id-token: write # Required for OIDC trusted publishing
+  contents: read # Required for creating tags and releases
 
 jobs:
   publish:
@@ -23,9 +23,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'pnpm'
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          cache: "pnpm"
 
       - name: Install latest npm
         run: npm install -g npm@latest
@@ -42,7 +42,8 @@ jobs:
       - run: pnpm run build
 
       - name: Publish to npm
-        run: npm publish --provenance --access public
+        # run: npm publish --provenance --access public
+        run: npm publish
 
       - name: Create Git tag and GitHub Release
         env:
