@@ -9,6 +9,32 @@ import type {
   Ok as OkType,
 } from "../result/__internal__/return-types";
 
+// Utility types for mixed primitive + object unions
+type PrimitiveMembers<T> = Extract<T, PropertyKey>;
+type ObjectKeys<T> = T extends object ? keyof T : never;
+type ObjectPropertyType<T, K extends PropertyKey> = T extends object
+  ? K extends keyof T
+    ? T[K]
+    : never
+  : never;
+
+// Helper to determine if a key K is a primitive member or object key
+type HandlerFor<T, K extends PropertyKey, R> = K extends PrimitiveMembers<T>
+  ? () => R
+  : K extends ObjectKeys<T>
+    ? (value: ObjectPropertyType<T, K>) => R
+    : never;
+
+// Build cases type with a single mapped type
+type MatchCases<T, R, HasDefault extends boolean = false> = (HasDefault extends true
+  ? Partial<{
+      [K in PrimitiveMembers<T> | ObjectKeys<T>]: HandlerFor<T, K, R>;
+    }>
+  : {
+      [K in PrimitiveMembers<T> | ObjectKeys<T>]: HandlerFor<T, K, R>;
+    }) &
+  (HasDefault extends true ? { default: () => R } : {});
+
 declare global {
   // Overload for Result type
   export function match<T, E, R>(
@@ -28,16 +54,16 @@ declare global {
     },
   ): R;
 
-  // Overload for primitives with default case
-  export function match<T extends PropertyKey, R>(
+  // Overload for mixed primitive + object unions WITH default (cases optional)
+  export function match<T extends PropertyKey | object, R>(
     matcher: T,
-    cases: Partial<Record<T, () => R>> & { default: () => R },
+    cases: MatchCases<T, R, true>,
   ): R;
 
-  // Overload for primitives without default case (exhaustive)
-  export function match<T extends PropertyKey, R>(
+  // Overload for mixed primitive + object unions WITHOUT default (exhaustive)
+  export function match<T extends PropertyKey | object, R>(
     matcher: T,
-    cases: Record<T, () => R>,
+    cases: MatchCases<T, R, false>,
   ): R;
 
   // Overload for discriminated unions with default case
@@ -62,6 +88,18 @@ declare global {
     matcher: T,
     cases: { [K in T[D]]: (value: Extract<T, { [P in D]: K }>) => R },
     discriminant: D,
+  ): R;
+
+  // Overload for primitives with default case
+  export function match<T extends PropertyKey, R>(
+    matcher: T,
+    cases: Partial<Record<T, () => R>> & { default: () => R },
+  ): R;
+
+  // Overload for primitives without default case (exhaustive)
+  export function match<T extends PropertyKey, R>(
+    matcher: T,
+    cases: Record<T, () => R>,
   ): R;
 
   // Result -> Option conversion
