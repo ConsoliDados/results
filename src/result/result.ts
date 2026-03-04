@@ -26,8 +26,8 @@ function Err<E>(error: E): ErrType<E> {
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-(global as any).Ok = Ok;
+(globalThis as any).Ok = Ok;
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-(global as any).Err = Err;
+(globalThis as any).Err = Err;
 
 export { Err, Ok, Result, ErrType, OkType };
