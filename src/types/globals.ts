@@ -37,22 +37,22 @@ type MatchCases<T, R, HasDefault extends boolean = false> = (HasDefault extends 
 
 declare global {
   // Overload for Result type
-  export function match<T, E, R>(
+  export function match<T, E, ROk, RErr>(
     matcher: Result<T, E>,
     cases: {
-      Ok: (value: T) => R;
-      Err: (error: E) => R;
+      Ok: (value: T) => ROk;
+      Err: (error: E) => RErr;
     },
-  ): R;
+  ): ROk | RErr;
 
   // Overload for Option type
-  export function match<T, R>(
+  export function match<T, RSome, RNone>(
     matcher: Option<T>,
     cases: {
-      Some: (value: T) => R;
-      None: () => R;
+      Some: (value: T) => RSome;
+      None: () => RNone;
     },
-  ): R;
+  ): RSome | RNone;
 
   // Overload for mixed primitive + object unions WITH default (cases optional)
   export function match<T extends PropertyKey | object, R>(
@@ -101,24 +101,6 @@ declare global {
     matcher: T,
     cases: Record<T, () => R>,
   ): R;
-
-  // Result -> Option conversion
-  export function match<T, E>(
-    matcher: Result<T, E>,
-    cases: {
-      Ok: (value: T) => Option<T>;
-      Err: (error: E) => Option<T>;
-    },
-  ): Option<T>;
-
-  // Option -> Result conversion
-  export function match<T, E>(
-    matcher: Option<T>,
-    cases: {
-      Some: (value: T) => Result<T, E>;
-      None: () => Result<T, E>;
-    },
-  ): Result<T, E>;
 
   /**
    * Creates a new `Ok` instance, representing a successful result.
