@@ -262,6 +262,55 @@ describe("match - type inference for mixed unions", () => {
   });
 });
 
+describe("match - handlers returning different subtypes", () => {
+  it("should allow Ok and Err handlers returning different Result subtypes", () => {
+    const sut: Result<number, string> = Ok(42);
+
+    const result = match(sut, {
+      Ok: (value) => Ok(String(value)),
+      Err: (error) => Err(error),
+    });
+
+    expect(result.isOk()).toBe(true);
+    expect(result.unwrap()).toBe("42");
+  });
+
+  it("should allow Err path with different Result subtypes", () => {
+    const sut: Result<number, string> = Err("fail");
+
+    const result = match(sut, {
+      Ok: (value) => Ok(String(value)),
+      Err: (error) => Err(error),
+    });
+
+    expect(result.isErr()).toBe(true);
+    expect(result.unwrapErr()).toBe("fail");
+  });
+
+  it("should allow Some and None handlers returning different Option subtypes", () => {
+    const sut: Option<number> = Some(10);
+
+    const result = match(sut, {
+      Some: (value) => Some(String(value)),
+      None: () => None(),
+    });
+
+    expect(result.isSome()).toBe(true);
+    expect(result.unwrap()).toBe("10");
+  });
+
+  it("should allow None path with different Option subtypes", () => {
+    const sut: Option<number> = None();
+
+    const result = match(sut, {
+      Some: (value) => Some(String(value)),
+      None: () => None(),
+    });
+
+    expect(result.isNone()).toBe(true);
+  });
+});
+
 // TypeScript compile-time tests (should be commented out):
 //
 // type TestError = "A" | "B" | { Other: string };

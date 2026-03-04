@@ -36,7 +36,7 @@ function None(): NoneType {
 	return NONE_INSTANCE;
 }
 
-(global as any).Some = Some;
-(global as any).None = None;
+(globalThis as any).Some = Some;
+(globalThis as any).None = None;
 
 export { None, Some, Option };
