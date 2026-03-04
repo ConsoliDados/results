@@ -11,7 +11,7 @@ This package provides robust implementations of the `Result` and `Option` types,
 - 🎯 **Type-safe** - Full TypeScript support with type narrowing
 - 🚀 **Performance** - None singleton pattern (95% less allocations)
 - 🔄 **Flexible** - Support for any error type (enums, strings, custom classes)
-- 🎨 **Pattern matching** - Match primitives, enums, and discriminated unions
+- 🎨 **Pattern matching** - Match primitives, enums, discriminated unions, and mixed primitive + object unions
 - 🛠️ **Rich API** - unwrapOr, orElse, filter, and more
 - 🌍 **Global availability** - Optional global imports for cleaner code
 
@@ -150,8 +150,8 @@ var APIError;
 ```typescript
 const APIError = {
   NotFound: "NOT_FOUND",
-  Unauthorized = "UNAUTHORIZED",
-  ServerError = "SERVER_ERROR",
+  Unauthorized: "UNAUTHORIZED",
+  ServerError: "SERVER_ERROR",
 } as const;
   
 type APIError = (typeof APIError)[keyof typeof APIError];
@@ -390,6 +390,49 @@ const simplified = match(status, {
 });
 ```
 
+### Matching Mixed Primitive + Object Unions
+
+Unions that combine primitive strings and object variants (common in Rust-style error types):
+
+```typescript
+type ServiceError =
+  | "ConnectionFailed"
+  | "InvalidConfiguration"
+  | { Other: [string, string] };
+
+const err: ServiceError = { Other: ["reason", "detail"] };
+
+// Exhaustive - all cases required
+const message = match(err, {
+  ConnectionFailed: () => "Connection failed",
+  InvalidConfiguration: () => "Invalid config",
+  Other: (data) => `Other error: ${data[0]} - ${data[1]}`,
+});
+
+// With default - partial cases allowed
+const simplified = match(err, {
+  ConnectionFailed: () => "Connection issue",
+  default: () => "Something else happened",
+});
+```
+
+Also works with complex object properties:
+
+```typescript
+type AppError =
+  | "NotFound"
+  | { Details: { code: number; message: string } }
+  | { Metadata: string[] };
+
+const error: AppError = { Details: { code: 404, message: "Not found" } };
+
+const result = match(error, {
+  NotFound: () => "Not found",
+  Details: (details) => `Error ${details.code}: ${details.message}`,
+  Metadata: (meta) => meta.join(", "),
+});
+```
+
 ### Matching Discriminated Unions
 
 ```typescript
@@ -451,13 +494,12 @@ const result = await fetchUser(123);
 
 const message = match(result, {
   Ok: (user) => `Welcome, ${user.name}!`,
-  Err: (error) => {
-    // Match on string values (const object compiles to strings)
-    const errMsg = (error as any).message || String(error);
-    if (errMsg.includes("NOT_FOUND")) return "User not found";
-    if (errMsg.includes("UNAUTHORIZED")) return "Please login";
-    return "Server error, try again";
-  },
+  Err: (error) =>
+    match(error, {
+      NOT_FOUND: () => "User not found",
+      UNAUTHORIZED: () => "Please login",
+      SERVER_ERROR: () => "Server error, try again",
+    }),
 });
 ```
 
@@ -600,6 +642,18 @@ match<T extends string | number | symbol, R>(
 match<T extends string | number | symbol, R>(
   matcher: T,
   cases: { [K in T]?: () => R } & { default: () => R }
+): R
+
+// Mixed primitive + object union (exhaustive)
+match<T extends PropertyKey | object, R>(
+  matcher: T,
+  cases: MatchCases<T, R, false>
+): R
+
+// Mixed primitive + object union (with default)
+match<T extends PropertyKey | object, R>(
+  matcher: T,
+  cases: MatchCases<T, R, true>
 ): R
 
 // Discriminated union matching
