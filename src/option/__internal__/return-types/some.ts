@@ -3,11 +3,18 @@ import type { Option } from "./option";
 import { None } from "../../option";
 import { Ok } from "@/result";
 
+// Hidden discriminant tag for O(1) dispatch in `match`.
+// Symbol.for ensures the same global symbol regardless of bundling.
+const TAG = Symbol.for("@consolidados/results.tag");
+
 /**
  * Represents a `Some` option, which holds a value.
  * @template T The type of the value held by this `Some` instance.
  */
 export class Some<T> {
+  /** Hidden tag — read by `match()` for O(1) dispatch. */
+  readonly [TAG] = "Some" as const;
+
   /**
    * Creates a new `Some` option with the given value.
    * @param _value The value to be wrapped in the `Some` option.
