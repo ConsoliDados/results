@@ -48,6 +48,71 @@ const result = Ok(42);
 const option = Some("hello");
 ```
 
+### Monorepo / workspace setup
+
+In a monorepo (Turborepo, Nx, pnpm workspaces, etc.) you usually don't want
+to repeat the global wiring in every `tsconfig.json` and every entrypoint.
+Wrap it once in a shared types package and have the other workspaces depend
+on that.
+
+**1. Create a shared package, e.g. `packages/types`:**
+
+`packages/types/src/globals.ts` — runtime side-effect (registers
+`Ok`, `Err`, `Some`, `None`, `match` on `globalThis`):
+
+```typescript
+import "@consolidados/results";
+```
+
+`packages/types/src/globals-types.d.ts` — ambient TypeScript types so
+`Result<T, E>` and `Option<T>` work without per-file imports:
+
+```typescript
+import type { Option as _Option, Result as _Result } from "@consolidados/results";
+
+declare global {
+  type Result<T, E> = _Result<T, E>;
+  type Option<T> = _Option<T>;
+}
+
+export {};
+```
+
+`packages/types/package.json` — expose both as subpath exports:
+
+```json
+{
+  "name": "@your-org/types",
+  "dependencies": { "@consolidados/results": "^0.5.0" },
+  "exports": {
+    "./globals": "./src/globals.ts",
+    "./globals-types": "./src/globals-types.d.ts"
+  }
+}
+```
+
+**2. In each consuming workspace:**
+
+`services/<name>/tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "types": ["node", "@your-org/types/globals-types"]
+  }
+}
+```
+
+`services/<name>/src/main.ts` (first import of the entrypoint):
+
+```typescript
+import "@your-org/types/globals";
+```
+
+Now every file in that workspace can use `Ok`, `Err`, `Some`, `None`, `match`,
+`Result<T, E>`, and `Option<T>` without any import — and the wiring lives in
+one place.
+
 ## Quick Start
 
 ### Result - Handle Success/Failure

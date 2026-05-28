@@ -1,6 +1,10 @@
 import type { Option } from "../option";
 import type { Result } from "../result";
 
+// Hidden discriminant tag — set by Ok/Err/Some/None instances for O(1) dispatch.
+// Same Symbol as the one declared in the variant classes via Symbol.for.
+const TAG = Symbol.for("@consolidados/results.tag");
+
 // Utility types for mixed primitive + object unions
 type PrimitiveMembers<T> = Extract<T, PropertyKey>;
 type ObjectKeys<T> = T extends object ? keyof T : never;
@@ -99,33 +103,46 @@ export function match<T, E, R>(
   cases: any,
   discriminant?: keyof any,
 ): R {
-  // Handle primitives (string, number, symbol) FIRST
-  if (
-    typeof matcher === "string" ||
-    typeof matcher === "number" ||
-    typeof matcher === "symbol"
-  ) {
+  // 1) Primitives (string/number/symbol) — direct key lookup, O(1).
+  const t = typeof matcher;
+  if (t === "string" || t === "number" || t === "symbol") {
     const handler = cases[matcher];
-
-    if (handler) {
-      return handler();
-    }
-
-    if (cases.default) {
-      return cases.default();
-    }
-
+    if (handler) return handler();
+    if (cases.default) return cases.default();
     throw new Error(`No case found for value: ${String(matcher)}`);
   }
 
-  // NEW: Handle objects with specific property keys (like { Other: [...] })
-  // This must come BEFORE discriminated union check to handle mixed unions
-  if (typeof matcher === "object" && matcher !== null && !discriminant) {
-    // Check if any case key matches a property in the matcher object
-    for (const key in cases) {
-      if (key === "default") continue;
+  if (matcher !== null && t === "object") {
+    // 2) Tagged variant (Ok/Err/Some/None) — single Symbol read + single lookup.
+    //    The Symbol property is invisible to `for...in`, `Object.keys`, and
+    //    `JSON.stringify`, so mixed unions with plain-object variants are
+    //    unaffected.
+    const tag = matcher[TAG];
+    if (tag !== undefined) {
+      const handler = cases[tag];
+      if (!handler) throw new Error(`Missing case for ${tag}`);
+      if (tag === "Ok" || tag === "Some") return handler(matcher.unwrap());
+      if (tag === "Err") return handler(matcher.unwrapErr() as E);
+      // tag === "None"
+      return handler();
+    }
 
-      if (key in matcher) {
+    // 3) Discriminated union via explicit `discriminant` arg — O(1).
+    if (discriminant) {
+      const dv = matcher[discriminant];
+      const handler = cases[dv];
+      if (handler) return handler(matcher);
+      if (cases.default) return cases.default(matcher);
+      throw new Error(`No case found for discriminant value: ${String(dv)}`);
+    }
+
+    // 4) Mixed primitive + object union — iterate matcher's own enumerable
+    //    keys (usually 1 for tagged variant objects like `{ Other: [...] }`)
+    //    and look up by key in cases. This flips the loop from O(cases)
+    //    to O(matcher-keys), which is effectively O(1) for tagged variants.
+    for (const key in matcher) {
+      if (key === "default") continue;
+      if (key in cases) {
         const handler = cases[key];
         if (handler) {
           return typeof handler === "function"
@@ -134,73 +151,7 @@ export function match<T, E, R>(
         }
       }
     }
-
-    // If no match found and there's a default, use it
-    if (cases.default) {
-      return cases.default();
-    }
-  }
-
-  // Handle discriminated unions
-  if (discriminant && typeof matcher === "object" && matcher !== null) {
-    const discriminantValue = matcher[discriminant];
-    const handler = cases[discriminantValue];
-
-    if (handler) {
-      return handler(matcher);
-    }
-
-    if (cases.default) {
-      return cases.default(matcher);
-    }
-
-    throw new Error(
-      `No case found for discriminant value: ${String(discriminantValue)}`,
-    );
-  }
-
-  // Early return for Result.Ok
-  if (
-    typeof matcher === "object" &&
-    matcher !== null &&
-    "isOk" in matcher &&
-    matcher.isOk()
-  ) {
-    if (!cases.Ok) throw new Error("Missing case for Ok");
-    return cases.Ok(matcher.unwrap());
-  }
-
-  // Early return for Result.Err
-  if (
-    typeof matcher === "object" &&
-    matcher !== null &&
-    "isErr" in matcher &&
-    matcher.isErr()
-  ) {
-    if (!cases.Err) throw new Error("Missing case for Err");
-    return cases.Err(matcher.unwrapErr() as E);
-  }
-
-  // Early return for Option.Some
-  if (
-    typeof matcher === "object" &&
-    matcher !== null &&
-    "isSome" in matcher &&
-    matcher.isSome()
-  ) {
-    if (!cases.Some) throw new Error("Missing case for Some");
-    return cases.Some(matcher.unwrap());
-  }
-
-  // Early return for Option.None
-  if (
-    typeof matcher === "object" &&
-    matcher !== null &&
-    "isNone" in matcher &&
-    matcher.isNone()
-  ) {
-    if (!cases.None) throw new Error("Missing case for None");
-    return cases.None();
+    if (cases.default) return cases.default();
   }
 
   throw new Error("Invalid matcher or missing case");

@@ -3,10 +3,17 @@ import type { Option } from "./option";
 import { None as NoneFactory } from "../../option";
 import { Err } from "@/result";
 
+// Hidden discriminant tag for O(1) dispatch in `match`.
+// Symbol.for ensures the same global symbol regardless of bundling.
+const TAG = Symbol.for("@consolidados/results.tag");
+
 /**
  * Represents a `None` option, which holds no value.
  */
 export class None {
+  /** Hidden tag — read by `match()` for O(1) dispatch. */
+  readonly [TAG] = "None" as const;
+
   /**
    * Checks if this option is a `Some`.
    * @returns `false` because this is a `None`.
