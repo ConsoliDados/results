@@ -1,11 +1,17 @@
 import type { Ok } from "./ok";
 import type { ResultDefinition } from "./result";
 
+// Hidden discriminant tag for O(1) dispatch in `match`.
+// Symbol.for ensures the same global symbol regardless of bundling.
+const TAG = Symbol.for("@consolidados/results.tag");
+
 /**
  * Represents a failed result (`Err`) that contains an error value.
  * @template E The type of the error contained in this `Err`. Can be any type (Error, string, enum, etc).
  */
 export class Err<E> implements ResultDefinition<never, E> {
+  /** Hidden tag — read by `match()` for O(1) dispatch. */
+  readonly [TAG] = "Err" as const;
   private error: E;
   /**
    * Creates a new `Err` instance with the given error value.

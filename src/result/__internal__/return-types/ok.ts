@@ -1,11 +1,19 @@
 import type { ResultDefinition } from "./result";
 import type { Err } from "./err";
 
+// Hidden discriminant tag for O(1) dispatch in `match`.
+// Symbol.for ensures the same global symbol regardless of bundling.
+const TAG = Symbol.for("@consolidados/results.tag");
+
 /**
  * Represents a successful result (`Ok`) that contains a value.
  * @template T The type of the value contained in this `Ok`.
  */
 export class Ok<T> implements ResultDefinition<T, never> {
+  /** Hidden tag — read by `match()` for O(1) dispatch. Symbol-keyed so it
+   *  doesn't appear in `for...in`, `Object.keys`, or `JSON.stringify`. */
+  readonly [TAG] = "Ok" as const;
+
   /**
    * Creates a new `Ok` instance with the given value.
    * @param _value The value to wrap in the `Ok` instance.
