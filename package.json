@@ -1,6 +1,7 @@
 {
   "name": "@consolidados/results",
   "version": "0.5.0",
+  "packageManager": "pnpm@11.4.0",
   "description": "Result types, ease and simple",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
