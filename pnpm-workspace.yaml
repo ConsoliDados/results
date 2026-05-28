@@ -1,3 +1,14 @@
+# pnpm config (this repo is single-package; the file exists only for settings).
+#
+# pnpm v11 changed the build-approval schema:
+#   - v10 reads `onlyBuiltDependencies` (list).
+#   - v11 reads `allowBuilds` (map of pkg → boolean) — the v10 list is silently
+#     ignored on v11 even though it parses without error.
+# We keep both so CI works regardless of which pnpm version the runner uses.
+
+allowBuilds:
+  esbuild: true
+
 onlyBuiltDependencies:
   - core-js
   - esbuild
