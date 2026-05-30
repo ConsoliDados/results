@@ -1,3 +1,7 @@
+<p align="center">
+  <img src=".github/logo.svg" alt="ResulTS" width="320" />
+</p>
+
 # ResulTS
 
 [![npm version](https://badge.fury.io/js/%40consolidados%2Fresults.svg)](https://www.npmjs.com/package/@consolidados/results)
